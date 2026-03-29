@@ -127,11 +127,11 @@ const db = {
     findByColaborador: (colaborador_id) => {
       const d = carregar();
       const es = d.escalas.filter(e => e.colaborador_id === colaborador_id);
-      // Junta com vagas e semanas
       return es.map(e => {
         const v = d.vagas.find(x => x.id === e.vaga_id) || {};
         const s = d.semanas.find(x => x.id === v.semana_id) || {};
-        return { ...e, ...v, semana_id: v.semana_id, data_inicio: s.data_inicio, publicada: s.publicada };
+        // Preserva o id da ESCALA (não da vaga)
+        return { ...v, ...e, id: e.id, semana_id: v.semana_id, data_inicio: s.data_inicio, publicada: s.publicada };
       }).filter(e => e.publicada);
     },
     findByVaga: (vaga_id) => {
