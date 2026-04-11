@@ -1,50 +1,51 @@
+// agendador.js — tarefas agendadas do Orion Escala
 const cron = require('node-cron');
-const db = require('../models/db');
+const db   = require('../models/db');
 
-cron.schedule('* * * * *', () => {
-  const agora = new Date();
-  const fs = require('fs');
-  const DB_PATH = process.env.DB_PATH || './data/orion.json';
-
-  if (!fs.existsSync(DB_PATH)) return;
-  const d = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-  let alterou = false;
-
-  d.escalas.forEach((e, i) => {
-    if (e.fase === 'notif1' && e.notificado_em) {
-      const notifTime = new Date(e.notificado_em.replace(' ', 'T') + 'Z');
-      const diffHoras = (agora - notifTime) / 3600000;
-      if (diffHoras >= 12) {
-        d.escalas[i].fase = 'vago';
-        alterou = true;
-        console.log('[AGENDADOR] Escala', e.id, '-> vago (12h sem resposta)');
-      }
-    }
-    if (e.fase === 'notif2' && e.notificado_em) {
-      const notifTime = new Date(e.notificado_em.replace(' ', 'T') + 'Z');
-      const diffMin = (agora - notifTime) / 60000;
-      if (diffMin >= 30) {
-        d.escalas[i].fase = 'urgente';
-        alterou = true;
-        console.log('[AGENDADOR] Escala', e.id, '-> urgente (30min sem confirmacao)');
-      }
-    }
-  });
-
-  if (alterou) fs.writeFileSync(DB_PATH, JSON.stringify(d, null, 2));
-
-  // Notif2: 2h antes do turno
-  const confirmados = db.escalas.findByFase('confirmado1');
-  for (const e of confirmados) {
-    if (!e.hora) continue;
-    const [h, m] = e.hora.split(':').map(Number);
-    let diff = (h * 60 + m) - (agora.getHours() * 60 + agora.getMinutes());
-    if (diff < 0) diff += 1440;
-    if (diff >= 115 && diff <= 125) {
-      db.escalas.update(e.id, { fase: 'notif2', notificado_em: db.agora() });
-      console.log('[NOTIF2] Escala', e.id, '— faltam', diff, 'min');
-    }
+// CRON 1: TODO DOMINGO AS 10:00 (America/Sao_Paulo)
+// Raspa demanda da semana anterior + gera escala da proxima semana
+cron.schedule('0 10 * * 0', async () => {
+  console.log('\n[CRON] Domingo 10:00 — iniciando raspagem de demanda...');
+  try {
+    const raspar = require('./scraper-demanda');
+    const resultado = await raspar();
+    console.log('[CRON] Demanda raspada: ' + resultado.total_pedidos + ' pedidos | Escala gerada como rascunho');
+  } catch (err) {
+    console.error('[CRON] Erro na raspagem:', err.message);
   }
-});
+}, { timezone: 'America/Sao_Paulo' });
 
-console.log('Agendador iniciado — verificando a cada minuto');
+// CRON 2: A CADA HORA — atualiza fases por tempo
+// notif1 sem resposta em 12h → vago | notif2 sem resposta em 30min → urgente
+cron.schedule('0 * * * *', () => {
+  try { db.escalas.atualizarFasesPorTempo(); }
+  catch (err) { console.error('[CRON] atualizarFasesPorTempo:', err.message); }
+}, { timezone: 'America/Sao_Paulo' });
+
+// CRON 3: A CADA 5 MIN — lembrete 2h antes do turno
+cron.schedule('*/5 * * * *', () => {
+  try {
+    const agora  = new Date();
+    const em2h   = new Date(agora.getTime() + 2 * 3600000);
+    const h2h    = String(em2h.getHours()).padStart(2,'0') + ':00';
+    const diaSem = ['dom','seg','ter','qua','qui','sex','sab'][em2h.getDay()];
+    const semana = db.semanas.findUltima();
+    if (!semana || !semana.publicada) return;
+    const escalas = db.escalas.findBySemana(semana.id).filter(e =>
+      e.fase === 'confirmado1' && e.dia_semana === diaSem && e.hora === h2h
+    );
+    for (const e of escalas) {
+      db.escalas.update(e.id, { fase: 'notif2', notificado_em: db.agora() });
+      db.notificacoes.insert({ escala_id: e.id, tipo: 'notif2' });
+    }
+    if (escalas.length > 0)
+      console.log('[CRON] Lembrete 2h: ' + escalas.length + ' colaboradores notificados para ' + diaSem + ' ' + h2h);
+  } catch (err) {
+    console.error('[CRON] lembrete 2h:', err.message);
+  }
+}, { timezone: 'America/Sao_Paulo' });
+
+console.log('Agendador iniciado');
+console.log('  -> Scraping automatico: todo domingo as 10:00 (America/Sao_Paulo)');
+console.log('  -> Atualizacao de fases: a cada hora');
+console.log('  -> Lembretes 2h antes:  a cada 5 minutos');
