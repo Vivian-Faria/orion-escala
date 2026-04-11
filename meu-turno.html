@@ -2,461 +2,161 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Órion · Meu Turno</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0d0f12;--surface:#14171c;--surface2:#1c2028;--surface3:#222630;
-  --border:#252930;--text:#e8eaf0;--muted:#6b7280;
-  --accent:#e8ff47;--ok:#47ffb2;--danger:#ff4747;--warn:#ff8c47;--info:#47d4ff;
-  --font-head:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
+  --bg:#0a0c0e;--surface:#111316;--surface2:#171a1e;--surface3:#1c2026;
+  --border:#1f2329;--border2:#2a2f38;
+  --text:#d4d8e0;--muted:#555e6b;--muted2:#3a4050;
+  --accent:#00e5a0;--info:#00b8ff;--warn:#ffb020;--danger:#ff4455;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:13px}
-
-/* TELAS */
-.screen{display:none;min-height:100vh}
-.screen.active{display:block}
-
-/* ── LOGIN ── */
-#screen-login{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:28px 20px}
-#screen-login.active{display:flex}
-.logo{font-family:var(--font-head);font-weight:800;font-size:22px;letter-spacing:-0.5px;margin-bottom:32px;color:var(--muted)}
-.logo span{color:var(--accent)}
-.login-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 24px;width:100%;max-width:360px}
-.login-title{font-family:var(--font-head);font-size:20px;font-weight:700;margin-bottom:4px}
-.login-sub{font-size:11px;color:var(--muted);margin-bottom:24px}
-.form-group{margin-bottom:16px}
-.form-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px}
-.form-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:var(--font-mono);font-size:13px;outline:none;transition:border-color 0.15s}
-.form-input:focus{border-color:var(--accent2,#47d4ff)}
-.form-input::placeholder{color:var(--muted)}
-.btn-login{width:100%;padding:14px;border-radius:10px;border:none;background:var(--accent);color:#0d0f12;font-family:var(--font-head);font-size:16px;font-weight:700;cursor:pointer;transition:background 0.15s;margin-top:8px}
-.btn-login:hover{background:#d4eb30}
-.btn-login:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed}
-.login-erro{color:var(--danger);font-size:11px;margin-top:10px;text-align:center;display:none}
-
-/* ── APP (pós-login) ── */
-#screen-app{display:none;flex-direction:column;min-height:100vh}
-#screen-app.active{display:flex}
-
-.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-.app-logo{font-family:var(--font-head);font-weight:800;font-size:18px;letter-spacing:-0.5px}
-.app-logo span{color:var(--accent)}
-.app-user{display:flex;align-items:center;gap:8px}
-.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;font-family:var(--font-head);color:var(--muted)}
-.user-name{font-size:12px;color:var(--muted)}
-.btn-logout{font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer}
-.btn-logout:hover{color:var(--danger);border-color:rgba(255,71,71,0.3)}
-
-.app-body{padding:20px;flex:1}
-
-/* CARDS DE TURNO */
-.turno-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
-.turno-card.urgente{border-color:rgba(255,71,71,0.5);background:rgba(255,71,71,0.04)}
-.turno-card.confirmado{border-color:rgba(71,255,178,0.3)}
-.turno-card.presente{border-color:rgba(71,255,178,0.5);background:rgba(71,255,178,0.04)}
-
-.turno-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
-.turno-dia{font-family:var(--font-head);font-size:18px;font-weight:700;line-height:1.1}
-.turno-data{font-size:11px;color:var(--muted);margin-top:2px}
-
-.fase-pill{font-size:9px;text-transform:uppercase;letter-spacing:0.06em;padding:4px 10px;border-radius:20px;border:1px solid;white-space:nowrap}
-.fase-notif1{background:rgba(71,212,255,0.1);color:var(--info);border-color:rgba(71,212,255,0.25)}
-.fase-confirmado{background:rgba(71,255,178,0.1);color:var(--ok);border-color:rgba(71,255,178,0.25)}
-.fase-notif2{background:rgba(232,255,71,0.1);color:var(--accent);border-color:rgba(232,255,71,0.25)}
-.fase-urgente{background:rgba(255,71,71,0.12);color:var(--danger);border-color:rgba(255,71,71,0.4)}
-.fase-presente{background:rgba(71,255,178,0.18);color:var(--ok);border-color:rgba(71,255,178,0.4)}
-.fase-aguardando{background:rgba(107,114,128,0.1);color:var(--muted);border-color:var(--border)}
-
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.info-item{background:var(--surface2);border-radius:8px;padding:10px 12px}
-.info-item-label{font-size:9px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:3px}
-.info-item-val{font-size:13px;font-weight:500;color:var(--text)}
-
-/* BOTÕES DE AÇÃO */
-.action-row{display:flex;flex-direction:column;gap:8px}
-.btn-confirmar{width:100%;padding:14px;border-radius:10px;border:none;background:var(--accent);color:#0d0f12;font-family:var(--font-head);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s}
-.btn-confirmar:hover{background:#d4eb30}
-.btn-confirmar:active{transform:scale(0.98)}
-.btn-recusar{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,71,71,0.3);background:rgba(255,71,71,0.08);color:var(--danger);font-family:var(--font-mono);font-size:12px;cursor:pointer;transition:all 0.15s}
-.btn-recusar:hover{background:rgba(255,71,71,0.15)}
-.btn-checkin{width:100%;padding:14px;border-radius:10px;border:none;background:var(--info);color:#0d0f12;font-family:var(--font-head);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-checkin:hover{background:#2dbde8}
-.btn-neutro{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:var(--font-mono);font-size:12px;cursor:pointer}
-
-/* ESTADO VAZIO */
-.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
-.empty-icon{font-size:40px;margin-bottom:12px;opacity:0.4}
-.empty-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
-
-/* GPS */
-.gps-loading{text-align:center;padding:16px;color:var(--info);font-size:12px}
-
-/* TROCAR SENHA */
-.senha-card{background:var(--surface);border:1px solid rgba(232,255,71,0.2);border-radius:14px;padding:20px;margin-bottom:16px}
-.senha-title{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--accent);margin-bottom:4px}
-.senha-sub{font-size:11px;color:var(--muted);margin-bottom:14px}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--text);z-index:300;opacity:0;transition:all 0.3s ease;max-width:90vw;text-align:center}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.toast.ok{border-color:rgba(71,255,178,0.4)}
-.toast.danger{border-color:rgba(255,71,71,0.5);background:rgba(20,5,5,0.95);color:var(--danger)}
-.toast.warn{border-color:rgba(255,140,71,0.4)}
-
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;}
+#tela-login{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px 20px;}
+#tela-login.ativa{display:flex;}
+.logo{font-family:var(--mono);font-size:18px;font-weight:600;margin-bottom:32px;color:var(--muted);}
+.logo span{color:var(--accent);}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 24px;width:100%;max-width:360px;}
+.login-title{font-family:var(--mono);font-size:18px;font-weight:600;margin-bottom:4px;}
+.login-sub{font-size:12px;color:var(--muted);margin-bottom:22px;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .15s;}
+.form-input:focus{border-color:var(--accent);}
+.btn-login{width:100%;padding:14px;border-radius:10px;border:none;background:var(--accent);color:#000;font-family:var(--mono);font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;}
+.btn-login:disabled{opacity:.5;}
+.login-erro{color:var(--danger);font-size:12px;margin-top:10px;text-align:center;display:none;}
+#tela-app{display:none;flex-direction:column;min-height:100vh;}
+#tela-app.ativa{display:flex;}
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.app-logo{font-family:var(--mono);font-size:16px;font-weight:600;}
+.app-logo span{color:var(--accent);}
+.user-info{display:flex;align-items:center;gap:8px;}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);}
+.user-name{font-size:12px;color:var(--muted);}
+.btn-sair{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;}
+.notif-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--danger);color:#fff;font-family:var(--mono);font-size:9px;font-weight:600;margin-left:6px;}
+.app-body{padding:20px;flex:1;}
+.section-title{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.turno-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;}
+.turno-card.pendente{border-color:rgba(0,184,255,.35);background:rgba(0,184,255,.03);}
+.turno-card.confirmado{border-color:rgba(0,229,160,.25);}
+.turno-card.presente{border-color:rgba(0,229,160,.4);background:rgba(0,229,160,.04);}
+.turno-card.urgente{border-color:rgba(255,68,85,.4);background:rgba(255,68,85,.04);}
+.turno-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.turno-dia{font-family:var(--mono);font-size:20px;font-weight:600;}
+.turno-semana{font-size:11px;color:var(--muted);margin-top:3px;}
+.fase-pill{font-size:9px;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;border-radius:20px;border:1px solid;white-space:nowrap;font-family:var(--mono);}
+.fase-notif1{background:rgba(0,184,255,.1);color:var(--info);border-color:rgba(0,184,255,.3);}
+.fase-confirmado{background:rgba(0,229,160,.1);color:var(--accent);border-color:rgba(0,229,160,.3);}
+.fase-notif2{background:rgba(255,176,32,.1);color:var(--warn);border-color:rgba(255,176,32,.3);}
+.fase-urgente{background:rgba(255,68,85,.12);color:var(--danger);border-color:rgba(255,68,85,.4);}
+.fase-presente{background:rgba(0,229,160,.15);color:var(--accent);border-color:rgba(0,229,160,.5);}
+.fase-recusado{background:rgba(255,68,85,.08);color:var(--danger);border-color:rgba(255,68,85,.2);}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.info-item{background:var(--surface2);border-radius:8px;padding:10px 12px;}
+.info-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:3px;}
+.info-val{font-family:var(--mono);font-size:13px;font-weight:500;}
+.acoes{display:flex;flex-direction:column;gap:8px;}
+.btn-confirmar{width:100%;padding:14px;border-radius:10px;border:none;background:var(--accent);color:#000;font-family:var(--mono);font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-recusar{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,68,85,.3);background:rgba(255,68,85,.06);color:var(--danger);font-family:var(--mono);font-size:12px;cursor:pointer;}
+.btn-checkin{width:100%;padding:14px;border-radius:10px;border:none;background:var(--info);color:#000;font-family:var(--mono);font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.info-banner{padding:12px 14px;border-radius:8px;font-size:12px;text-align:center;}
+.info-banner.ok{background:rgba(0,229,160,.08);color:var(--accent);}
+.info-banner.warn{background:rgba(255,176,32,.08);color:var(--warn);}
+.info-banner.danger{background:rgba(255,68,85,.08);color:var(--danger);}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.modal-recusa{background:var(--surface);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:24px 20px;width:100%;max-width:480px;}
+.modal-title{font-family:var(--mono);font-size:14px;font-weight:600;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.motivos{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.motivo-btn{width:100%;padding:12px 14px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;text-align:left;cursor:pointer;}
+.motivo-btn.selecionado{border-color:var(--danger);background:rgba(255,68,85,.08);color:var(--danger);}
+.modal-btns{display:flex;gap:8px;}
+.btn-cancelar{flex:1;padding:12px;border:1px solid var(--border2);border-radius:8px;background:none;color:var(--muted);font-family:var(--mono);font-size:13px;cursor:pointer;}
+.btn-confirmar-recusa{flex:2;padding:12px;border:none;border-radius:8px;background:var(--danger);color:#fff;font-family:var(--mono);font-size:13px;font-weight:600;cursor:pointer;}
+.btn-confirmar-recusa:disabled{opacity:.4;}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:12px;font-family:var(--mono);z-index:300;opacity:0;transition:all .3s;max-width:90vw;text-align:center;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(0,229,160,.4);color:var(--accent);}
+.toast.danger{border-color:rgba(255,68,85,.4);color:var(--danger);}
+.toast.warn{border-color:rgba(255,176,32,.4);color:var(--warn);}
 @keyframes spin{to{transform:rotate(360deg)}}
-.spin{display:inline-block;animation:spin 1s linear infinite}
+.spin{display:inline-block;animation:spin 1s linear infinite;}
 </style>
 </head>
 <body>
-
-<!-- TELA DE LOGIN -->
-<div class="screen active" id="screen-login">
+<div id="tela-login">
   <div class="logo">órion<span>·</span>escala</div>
-  <div class="login-card">
+  <div class="login-box">
     <div class="login-title">Entrar</div>
-    <div class="login-sub">Use o email e senha fornecidos pelo supervisor.</div>
-    <div class="form-group">
-      <label class="form-label">E-mail</label>
-      <input class="form-input" type="email" id="input-email" placeholder="seu@email.com" autocomplete="email">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Senha</label>
-      <input class="form-input" type="password" id="input-senha" placeholder="••••••" autocomplete="current-password">
-    </div>
+    <div class="login-sub">Use o e-mail e senha fornecidos pelo supervisor.</div>
+    <div class="form-group"><label class="form-label">E-mail</label><input class="form-input" type="email" id="input-email" placeholder="seu@email.com" autocomplete="email"></div>
+    <div class="form-group"><label class="form-label">Senha</label><input class="form-input" type="password" id="input-senha" placeholder="••••••" autocomplete="current-password"></div>
     <button class="btn-login" id="btn-entrar" onclick="fazerLogin()">Entrar</button>
     <div class="login-erro" id="login-erro"></div>
   </div>
 </div>
-
-<!-- APP PÓS-LOGIN -->
-<div class="screen" id="screen-app">
+<div id="tela-app">
   <div class="app-header">
     <div class="app-logo">órion<span>·</span>escala</div>
-    <div class="app-user">
-      <div class="user-avatar" id="user-avatar">??</div>
+    <div class="user-info">
+      <div class="avatar" id="user-avatar">??</div>
       <span class="user-name" id="user-name">—</span>
-      <button class="btn-logout" onclick="logout()">Sair</button>
+      <button class="btn-sair" onclick="sair()">Sair</button>
     </div>
   </div>
-  <div class="app-body" id="app-body">
-    <div class="gps-loading"><span class="spin">⟳</span> Carregando seus turnos...</div>
+  <div class="app-body" id="app-body"><div class="empty"><span class="spin">⟳</span></div></div>
+</div>
+<div class="overlay" id="overlay-recusa" onclick="if(event.target===this)fecharRecusaModal()">
+  <div class="modal-recusa">
+    <div class="modal-title">Recusar este turno</div>
+    <div class="modal-sub">Selecione o motivo para que o supervisor possa reorganizar a escala.</div>
+    <div class="motivos">
+      <button class="motivo-btn" onclick="selecionarMotivo(this,'Compromisso pessoal')">Compromisso pessoal</button>
+      <button class="motivo-btn" onclick="selecionarMotivo(this,'Problema de saúde')">Problema de saúde</button>
+      <button class="motivo-btn" onclick="selecionarMotivo(this,'Conflito de horário')">Conflito de horário</button>
+      <button class="motivo-btn" onclick="selecionarMotivo(this,'Transporte indisponível')">Transporte indisponível</button>
+      <button class="motivo-btn" onclick="selecionarMotivo(this,'Outro motivo')">Outro motivo</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancelar" onclick="fecharRecusaModal()">Cancelar</button>
+      <button class="btn-confirmar-recusa" id="btn-confirmar-recusa" onclick="confirmarRecusa()" disabled>Confirmar recusa</button>
+    </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
-const API = 'http://localhost:3001/api'; // troca pela URL do servidor em produção
-
-// ─── AUTH ────────────────────────────────────────────────────────────────────
-function getToken() { return localStorage.getItem('orion_token'); }
-function getUser()  { try { return JSON.parse(localStorage.getItem('orion_user')); } catch { return null; } }
-
-async function fazerLogin() {
-  const email = document.getElementById('input-email').value.trim();
-  const senha = document.getElementById('input-senha').value;
-  const btn   = document.getElementById('btn-entrar');
-  const erro  = document.getElementById('login-erro');
-
-  if (!email || !senha) { mostrarErro('Preencha e-mail e senha.'); return; }
-
-  btn.disabled = true;
-  btn.textContent = 'Entrando...';
-  erro.style.display = 'none';
-
-  try {
-    const res = await fetch(`${API}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, senha })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.erro || 'Erro ao entrar');
-
-    localStorage.setItem('orion_token', data.token);
-    localStorage.setItem('orion_user', JSON.stringify(data.usuario));
-    entrarNoApp(data.usuario);
-  } catch (e) {
-    mostrarErro(e.message);
-    btn.disabled = false;
-    btn.textContent = 'Entrar';
-  }
-}
-
-function mostrarErro(msg) {
-  const el = document.getElementById('login-erro');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-function logout() {
-  localStorage.removeItem('orion_token');
-  localStorage.removeItem('orion_user');
-  document.getElementById('screen-app').classList.remove('active');
-  document.getElementById('screen-login').classList.add('active');
-  document.getElementById('input-senha').value = '';
-}
-
-function entrarNoApp(usuario) {
-  document.getElementById('screen-login').classList.remove('active');
-  document.getElementById('screen-app').classList.add('active');
-
-  const ini = (usuario.nome || '??').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('user-avatar').textContent = ini;
-  document.getElementById('user-name').textContent = usuario.apelido || usuario.nome.split(' ')[0];
-
-  carregarTurnos();
-}
-
-// ─── FETCH COM TOKEN ─────────────────────────────────────────────────────────
-async function api(path, opts={}) {
-  const res = await fetch(`${API}${path}`, {
-    ...opts,
-    headers: { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json', ...(opts.headers||{}) }
-  });
-  if (res.status === 401) { logout(); return null; }
-  return res.json();
-}
-
-// ─── TURNOS ──────────────────────────────────────────────────────────────────
-const DIAS_NOMES = { dom:'Domingo',seg:'Segunda',ter:'Terça',qua:'Quarta',qui:'Quinta',sex:'Sexta',sab:'Sábado' };
-const FASE_INFO = {
-  aguardando:  { label:'Aguardando publicação', cls:'fase-aguardando' },
-  notif1:      { label:'Confirme sua escala',   cls:'fase-notif1' },
-  confirmado1: { label:'Escala confirmada',      cls:'fase-confirmado' },
-  notif2:      { label:'Confirme sua presença', cls:'fase-notif2' },
-  presente:    { label:'Presença confirmada',   cls:'fase-presente' },
-  urgente:     { label:'URGENTE',               cls:'fase-urgente' },
-};
-
-async function carregarTurnos() {
-  const data = await api('/escalas/meu-turno');
-  const usuario = getUser();
-  const body = document.getElementById('app-body');
-
-  if (!data) return;
-
-  // Agrupa horas em turnos contínuos
-  const turnos = agruparTurnos(data);
-
-  let html = '';
-
-  // Banner de senha inicial
-  if (usuario?.senha_inicial) {
-    html += `<div class="senha-card">
-      <div class="senha-title">Troque sua senha</div>
-      <div class="senha-sub">Você está usando a senha inicial. Por segurança, defina uma senha pessoal.</div>
-      ${formTrocarSenha()}
-    </div>`;
-  }
-
-  if (turnos.length === 0) {
-    html += `<div class="empty-state">
-      <div class="empty-icon">📅</div>
-      <div class="empty-title">Nenhum turno escalado</div>
-      <div>Você ainda não foi escalado(a) para esta semana.</div>
-    </div>`;
-  } else {
-    html += turnos.map(t => renderTurno(t)).join('');
-  }
-
-  body.innerHTML = html;
-}
-
-function agruparTurnos(escalas) {
-  // Agrupa escalas com hora_idx consecutivos no mesmo dia em um turno
-  const grupos = [];
-  const sorted = [...escalas].sort((a,b) => {
-    const dias = ['dom','seg','ter','qua','qui','sex','sab'];
-    const dDiff = dias.indexOf(a.dia_semana) - dias.indexOf(b.dia_semana);
-    return dDiff !== 0 ? dDiff : a.hora_idx - b.hora_idx;
-  });
-
-  for (const e of sorted) {
-    const last = grupos[grupos.length - 1];
-    if (last && last.dia === e.dia_semana && last.idxFim === e.hora_idx - 1 && last.fase === e.fase) {
-      last.idxFim = e.hora_idx;
-      last.horaFim = e.hora;
-      last.dur++;
-      last.ids.push(e.id);
-    } else {
-      grupos.push({
-        ids: [e.id],
-        dia: e.dia_semana,
-        data_inicio: e.data_inicio,
-        horaInicio: e.hora,
-        horaFim: e.hora,
-        idxInicio: e.hora_idx,
-        idxFim: e.hora_idx,
-        dur: 1,
-        fase: e.fase,
-      });
-    }
-  }
-  return grupos;
-}
-
-function fimTurno(hora) {
-  const [h] = hora.split(':').map(Number);
-  return String((h+1)%24).padStart(2,'0') + ':00';
-}
-
-function renderTurno(t) {
-  const fi = FASE_INFO[t.fase] || FASE_INFO.aguardando;
-  const diaLabel = DIAS_NOMES[t.dia] || t.dia;
-  const semana = t.data_inicio ? t.data_inicio.slice(5).replace('-','/') : '';
-  const fimDisp = fimTurno(t.horaFim);
-  const idPrincipal = t.ids[0];
-
-  let acoes = '';
-  if (t.fase === 'notif1') {
-    acoes = `
-      <div class="action-row">
-        <button class="btn-confirmar" onclick="confirmarTurno(${idPrincipal})">✓ Confirmar escala</button>
-        <button class="btn-recusar" onclick="recusarTurno(${idPrincipal})">Não consigo trabalhar neste turno</button>
-      </div>`;
-  } else if (t.fase === 'notif2') {
-    acoes = `
-      <div class="action-row">
-        <button class="btn-confirmar" onclick="confirmarPresenca(${idPrincipal})">✓ Confirmarei minha presença</button>
-        <button class="btn-recusar" onclick="recusarTurno(${idPrincipal})">Não consigo comparecer</button>
-      </div>`;
-  } else if (t.fase === 'confirmado1') {
-    acoes = `
-      <div class="action-row">
-        <button class="btn-checkin" onclick="fazerCheckin(${idPrincipal})">
-          <span>📍</span> Fazer check-in ao chegar
-        </button>
-        <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">O check-in valida sua presença via GPS</div>
-      </div>`;
-  } else if (t.fase === 'urgente') {
-    acoes = `<div style="font-size:12px;color:var(--danger);padding:10px;background:rgba(255,71,71,0.08);border-radius:8px;text-align:center">
-      O supervisor foi notificado sobre este turno.
-    </div>`;
-  } else if (t.fase === 'presente') {
-    acoes = `<div style="font-size:12px;color:var(--ok);padding:10px;background:rgba(71,255,178,0.08);border-radius:8px;text-align:center">
-      ✓ Check-in registrado. Bom turno!
-    </div>`;
-  }
-
-  return `<div class="turno-card ${t.fase === 'urgente' ? 'urgente' : t.fase === 'presente' ? 'presente' : t.fase === 'confirmado1' ? 'confirmado' : ''}">
-    <div class="turno-header">
-      <div>
-        <div class="turno-dia">${diaLabel}</div>
-        <div class="turno-data">Semana de ${semana}</div>
-      </div>
-      <span class="fase-pill ${fi.cls}">${fi.label}</span>
-    </div>
-    <div class="info-grid">
-      <div class="info-item">
-        <div class="info-item-label">Horário</div>
-        <div class="info-item-val">${t.horaInicio} → ${fimDisp}</div>
-      </div>
-      <div class="info-item">
-        <div class="info-item-label">Duração</div>
-        <div class="info-item-val">${t.dur}h de turno</div>
-      </div>
-    </div>
-    ${acoes}
-  </div>`;
-}
-
-// ─── AÇÕES ───────────────────────────────────────────────────────────────────
-async function confirmarTurno(id) {
-  const data = await api(`/escalas/${id}/confirmar`, { method:'POST' });
-  if (data?.ok) { showToast(data.mensagem, 'ok'); carregarTurnos(); }
-  else showToast(data?.erro || 'Erro ao confirmar', 'danger');
-}
-
-async function recusarTurno(id) {
-  if (!confirm('Tem certeza que não pode comparecer? O supervisor será notificado.')) return;
-  const data = await api(`/escalas/${id}/recusar`, { method:'POST' });
-  if (data?.ok) { showToast(data.mensagem, 'warn'); carregarTurnos(); }
-  else showToast(data?.erro || 'Erro ao recusar', 'danger');
-}
-
-async function confirmarPresenca(id) {
-  const data = await api(`/escalas/${id}/confirmar-presenca`, { method:'POST' });
-  if (data?.ok) { showToast(data.mensagem, 'ok'); carregarTurnos(); }
-  else showToast(data?.erro || 'Erro', 'danger');
-}
-
-async function fazerCheckin(id) {
-  if (!navigator.geolocation) { showToast('GPS não disponível neste dispositivo', 'danger'); return; }
-  showToast('⟳ Obtendo sua localização...', 'warn');
-
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const data = await api(`/escalas/${id}/checkin`, {
-        method: 'POST',
-        body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-      });
-      if (data?.ok) { showToast(data.mensagem, 'ok'); carregarTurnos(); }
-      else {
-        const msg = data?.erro === 'Fora do raio permitido'
-          ? `Você está a ${data.distancia_m}m do estabelecimento (máx ${data.raio_m}m)`
-          : data?.erro || 'Erro no check-in';
-        showToast(msg, 'danger');
-      }
-    },
-    () => showToast('Permissão de GPS negada. Ative a localização e tente novamente.', 'danger'),
-    { enableHighAccuracy: true, timeout: 12000 }
-  );
-}
-
-// ─── TROCAR SENHA ────────────────────────────────────────────────────────────
-function formTrocarSenha() {
-  return `<div>
-    <div class="form-group">
-      <label class="form-label">Senha atual</label>
-      <input class="form-input" type="password" id="ts-atual" placeholder="••••••">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Nova senha (mín. 6 caracteres)</label>
-      <input class="form-input" type="password" id="ts-nova" placeholder="••••••">
-    </div>
-    <button class="btn-neutro" onclick="trocarSenha()" style="margin-top:4px">Salvar nova senha</button>
-  </div>`;
-}
-
-async function trocarSenha() {
-  const atual = document.getElementById('ts-atual')?.value;
-  const nova  = document.getElementById('ts-nova')?.value;
-  if (!atual || !nova) { showToast('Preencha os dois campos', 'warn'); return; }
-  const data = await api('/auth/trocar-senha', {
-    method: 'POST', body: JSON.stringify({ senha_atual: atual, nova_senha: nova })
-  });
-  if (data?.ok) {
-    showToast('Senha alterada com sucesso!', 'ok');
-    const u = getUser();
-    delete u.senha_inicial;
-    localStorage.setItem('orion_user', JSON.stringify(u));
-    setTimeout(carregarTurnos, 1500);
-  } else showToast(data?.erro || 'Erro ao trocar senha', 'danger');
-}
-
-// ─── UTILS ───────────────────────────────────────────────────────────────────
-function showToast(msg, type='ok') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `toast show ${type}`;
-  setTimeout(() => t.className = 'toast', 4000);
-}
-
-// Enter no login
-document.getElementById('input-senha').addEventListener('keydown', e => {
-  if (e.key === 'Enter') fazerLogin();
-});
-
-// Auto-login se já tem token
-window.addEventListener('DOMContentLoaded', () => {
-  const token = getToken();
-  const user  = getUser();
-  if (token && user) entrarNoApp(user);
-});
+const API='http://localhost:3001/api';
+const getToken=()=>localStorage.getItem('orion_token');
+const getUser=()=>{try{return JSON.parse(localStorage.getItem('orion_user'));}catch{return null;}};
+async function fazerLogin(){const email=document.getElementById('input-email').value.trim();const senha=document.getElementById('input-senha').value;const btn=document.getElementById('btn-entrar');if(!email||!senha){document.getElementById('login-erro').textContent='Preencha e-mail e senha.';document.getElementById('login-erro').style.display='block';return;}btn.disabled=true;btn.textContent='Entrando...';try{const res=await fetch(`${API}/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,senha})});const data=await res.json();if(!res.ok)throw new Error(data.erro||'Erro');localStorage.setItem('orion_token',data.token);localStorage.setItem('orion_user',JSON.stringify(data.usuario));abrirApp(data.usuario);}catch(e){document.getElementById('login-erro').textContent=e.message;document.getElementById('login-erro').style.display='block';btn.disabled=false;btn.textContent='Entrar';}}
+function sair(){localStorage.removeItem('orion_token');localStorage.removeItem('orion_user');document.getElementById('tela-app').classList.remove('ativa');document.getElementById('tela-login').classList.add('ativa');}
+function abrirApp(u){document.getElementById('tela-login').classList.remove('ativa');document.getElementById('tela-app').classList.add('ativa');const ini=(u.nome||'??').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();document.getElementById('user-avatar').textContent=ini;document.getElementById('user-name').textContent=u.apelido||u.nome?.split(' ')[0];carregarTurnos();}
+async function api(path,opts={}){try{const res=await fetch(`${API}${path}`,{...opts,headers:{'Authorization':`Bearer ${getToken()}`,'Content-Type':'application/json'}});if(res.status===401){sair();return null;}return await res.json();}catch{return null;}}
+const DNOMES={dom:'Domingo',seg:'Segunda',ter:'Terça',qua:'Quarta',qui:'Quinta',sex:'Sexta',sab:'Sábado'};
+const FI={notif1:{label:'Confirme seu turno',cls:'fase-notif1'},confirmado1:{label:'Turno confirmado',cls:'fase-confirmado'},confirmado2:{label:'Presença confirmada',cls:'fase-confirmado'},notif2:{label:'Confirme sua presença',cls:'fase-notif2'},urgente:{label:'URGENTE',cls:'fase-urgente'},presente:{label:'Presente ✓',cls:'fase-presente'},recusado:{label:'Recusado',cls:'fase-recusado'}};
+async function carregarTurnos(){document.getElementById('app-body').innerHTML='<div class="empty"><span class="spin">⟳</span> Carregando...</div>';const t=await api('/escalas/meu-turno');if(!t){document.getElementById('app-body').innerHTML='<div class="empty">Erro ao carregar.</div>';return;}renderTurnos(agrupar(t));}
+function agrupar(es){const dd=['dom','seg','ter','qua','qui','sex','sab'];const s=[...es].sort((a,b)=>{const d=dd.indexOf(a.dia_semana)-dd.indexOf(b.dia_semana);return d||(a.hora_idx??0)-(b.hora_idx??0);});const g=[];for(const e of s){const l=g[g.length-1];if(l&&l.dia===e.dia_semana&&l.fase===e.fase&&l.idxFim===(e.hora_idx??0)-1){l.idxFim=e.hora_idx??0;l.hFim=e.hora;l.dur++;l.ids.push(e.id);}else{g.push({ids:[e.id],dia:e.dia_semana,di:e.data_inicio,hIni:e.hora,hFim:e.hora,idxFim:e.hora_idx??0,dur:1,fase:e.fase});}}return g;}
+function hFim(h){return String((parseInt(h)+1)%24).padStart(2,'0')+':00';}
+function renderTurnos(gs){const pen=gs.filter(g=>['notif1','notif2','urgente'].includes(g.fase));const out=gs.filter(g=>!['notif1','notif2','urgente'].includes(g.fase));let html='';if(pen.length){html+=`<div class="section-title">⚡ Aguardando sua resposta <span class="notif-badge">${pen.length}</span></div>`+pen.map(rc).join('')+'<div style="height:20px"></div>';}if(out.length){html+='<div class="section-title">📅 Seus turnos da semana</div>'+out.map(rc).join('');}if(!gs.length){html='<div class="empty"><div style="font-size:40px;opacity:.2;margin-bottom:12px">📅</div><div>Nenhum turno escalado para esta semana.</div></div>';}document.getElementById('app-body').innerHTML=html;}
+function rc(g){const fi=FI[g.fase]||{label:g.fase,cls:''};const dL=DNOMES[g.dia]||g.dia;const sem=g.di?g.di.slice(5).replace('-','/'):'';const id=g.ids[0];const f=hFim(g.hFim);let ac='';if(g.fase==='notif1'){ac=`<div class="acoes"><button class="btn-confirmar" onclick="confirmarTurno(${id},this)">✓ Confirmar turno</button><button class="btn-recusar" onclick="abrirRecusa(${id})">Não consigo comparecer</button></div>`;}else if(g.fase==='notif2'){ac=`<div class="acoes"><button class="btn-confirmar" onclick="confirmarPresenca(${id},this)">✓ Confirmarei minha presença</button><button class="btn-recusar" onclick="abrirRecusa(${id})">Não consigo comparecer</button></div>`;}else if(g.fase==='confirmado1'||g.fase==='confirmado2'){ac=`<div class="acoes"><button class="btn-checkin" onclick="fazerCheckin(${id},this)">📍 Fazer check-in ao chegar</button><div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px">Obrigatório — registra sua chegada via GPS</div></div>`;}else if(g.fase==='urgente'){ac='<div class="info-banner danger">Supervisor notificado.</div>';}else if(g.fase==='presente'){ac='<div class="info-banner ok">✓ Check-in realizado. Bom turno!</div>';}else if(g.fase==='recusado'){ac='<div class="info-banner warn">Recusa registrada.</div>';}const cls=g.fase==='notif1'||g.fase==='notif2'?'pendente':g.fase==='presente'?'presente':g.fase==='urgente'?'urgente':g.fase.startsWith('confirmado')?'confirmado':'';return `<div class="turno-card ${cls}"><div class="turno-header"><div><div class="turno-dia">${dL}</div>${sem?`<div class="turno-semana">Semana de ${sem}</div>`:''}</div><span class="fase-pill ${fi.cls}">${fi.label}</span></div><div class="info-grid"><div class="info-item"><div class="info-label">Horário</div><div class="info-val">${g.hIni} → ${f}</div></div><div class="info-item"><div class="info-label">Duração</div><div class="info-val">${g.dur}h</div></div></div>${ac}</div>`;}
+async function confirmarTurno(id,btn){btn.disabled=true;btn.textContent='⟳...';const d=await api(`/escalas/${id}/confirmar`,{method:'POST'});if(d?.ok){toast(d.mensagem,'ok');setTimeout(carregarTurnos,1500);}else{toast(d?.erro||'Erro','danger');btn.disabled=false;btn.textContent='✓ Confirmar turno';}}
+async function confirmarPresenca(id,btn){btn.disabled=true;const d=await api(`/escalas/${id}/confirmar-presenca`,{method:'POST'});if(d?.ok){toast(d.mensagem,'ok');setTimeout(carregarTurnos,1500);}else{toast(d?.erro||'Erro','danger');btn.disabled=false;}}
+let rId=null,mot=null;
+function abrirRecusa(id){rId=id;mot=null;document.querySelectorAll('.motivo-btn').forEach(b=>b.classList.remove('selecionado'));document.getElementById('btn-confirmar-recusa').disabled=true;document.getElementById('overlay-recusa').classList.add('open');}
+function selecionarMotivo(b,m){document.querySelectorAll('.motivo-btn').forEach(x=>x.classList.remove('selecionado'));b.classList.add('selecionado');mot=m;document.getElementById('btn-confirmar-recusa').disabled=false;}
+function fecharRecusaModal(){document.getElementById('overlay-recusa').classList.remove('open');}
+async function confirmarRecusa(){if(!rId||!mot)return;const btn=document.getElementById('btn-confirmar-recusa');btn.disabled=true;btn.textContent='⟳ Enviando...';const d=await api(`/escalas/${rId}/recusar`,{method:'POST',body:JSON.stringify({motivo:mot})});fecharRecusaModal();if(d?.ok){toast(d.substituto?`Recusa registrada. ${d.substituto} alocado.`:'Recusa registrada.','warn');setTimeout(carregarTurnos,1500);}else{toast(d?.erro||'Erro','danger');}btn.disabled=false;btn.textContent='Confirmar recusa';}
+async function fazerCheckin(id,btn){if(!navigator.geolocation){toast('GPS indisponível','danger');return;}btn.disabled=true;btn.innerHTML='<span class="spin">⟳</span> Obtendo localização...';navigator.geolocation.getCurrentPosition(async(p)=>{const d=await api(`/escalas/${id}/checkin`,{method:'POST',body:JSON.stringify({lat:p.coords.latitude,lng:p.coords.longitude})});if(d?.ok){toast(d.mensagem,'ok');setTimeout(carregarTurnos,1500);}else{toast(d?.dica||d?.erro||'Erro','danger');btn.disabled=false;btn.innerHTML='📍 Fazer check-in ao chegar';}},()=>{toast('Permissão de GPS negada.','danger');btn.disabled=false;btn.innerHTML='📍 Fazer check-in ao chegar';},{enableHighAccuracy:true,timeout:15000,maximumAge:0});}
+function toast(msg,tipo='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast show ${tipo}`;setTimeout(()=>t.className='toast',4500);}
+document.getElementById('input-senha').addEventListener('keydown',e=>{if(e.key==='Enter')fazerLogin();});
+window.addEventListener('DOMContentLoaded',()=>{const t=getToken(),u=getUser();if(t&&u)abrirApp(u);else document.getElementById('tela-login').classList.add('ativa');});
 </script>
 </body>
 </html>
