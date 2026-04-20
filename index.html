@@ -132,7 +132,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:va
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const API_URL = 'http://localhost:3000';
+const API = 'https://orion-escala-production.up.railway.app';
 const getToken=()=>localStorage.getItem('orion_token');
 const getUser=()=>{try{return JSON.parse(localStorage.getItem('orion_user'));}catch{return null;}};
 async function fazerLogin(){const email=document.getElementById('input-email').value.trim();const senha=document.getElementById('input-senha').value;const btn=document.getElementById('btn-entrar');if(!email||!senha){document.getElementById('login-erro').textContent='Preencha e-mail e senha.';document.getElementById('login-erro').style.display='block';return;}btn.disabled=true;btn.textContent='Entrando...';try{const res=await fetch(`${API}/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,senha})});const data=await res.json();if(!res.ok)throw new Error(data.erro||'Erro');localStorage.setItem('orion_token',data.token);localStorage.setItem('orion_user',JSON.stringify(data.usuario));abrirApp(data.usuario);}catch(e){document.getElementById('login-erro').textContent=e.message;document.getElementById('login-erro').style.display='block';btn.disabled=false;btn.textContent='Entrar';}}
