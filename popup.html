@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:240px;font-family:'DM Sans',-apple-system,sans-serif;font-size:13px;background:#0d0d10;color:#f0f0f0;padding:16px}
+  .logo{font-size:15px;font-weight:700;margin-bottom:4px;color:#c8f135}
+  .sub{font-size:11px;color:#6b7280;margin-bottom:16px}
+  .btn{display:block;width:100%;padding:10px 14px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;transition:.15s}
+  .btn-primary{background:#c8f135;color:#0d0d10}
+  .btn-primary:hover{background:#b8e020}
+  .btn-sec{background:#1f2937;color:#f0f0f0;border:1px solid #374151}
+  .btn-sec:hover{background:#374151}
+  .info{font-size:10px;color:#6b7280;line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid #1f2937}
+</style>
+</head>
+<body>
+<div class="logo">órion · escala</div>
+<div class="sub">Coleta de dados automática</div>
+
+<button class="btn btn-primary" id="btnColetar">📊 Coletar e abrir plataforma</button>
+<button class="btn btn-sec" id="btnAbrir">↗ Abrir plataforma</button>
+
+<div class="info" id="info">Clique em "Coletar" estando no Órion para buscar os dados da semana anterior e abrir a escala automaticamente.</div>
+
+<script>
+const NETLIFY = 'https://orion-escala.netlify.app';
+
+document.getElementById('btnAbrir').onclick = () => {
+  chrome.tabs.create({ url: NETLIFY });
+};
+
+document.getElementById('btnColetar').onclick = async () => {
+  const btn = document.getElementById('btnColetar');
+  const info = document.getElementById('info');
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if(!tab.url.includes('admin.orioncloudkitchens.com.br')){
+    info.textContent = '⚠️ Navegue até o Órion primeiro.';
+    info.style.color = '#f97316';
+    return;
+  }
+  btn.textContent = '⏳ Coletando...';
+  btn.disabled = true;
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: () => { const f=document.getElementById('orion-escala-fab'); if(f){f.click();return 'ok';} return 'no_fab'; }
+  }, (r) => {
+    info.textContent = r?.[0]?.result==='ok' ? '✅ Abrindo plataforma...' : '⚠️ Recarregue o Órion.';
+    btn.textContent = '📊 Coletar e abrir plataforma';
+    btn.disabled = false;
+  });
+};
+</script>
+</body>
+</html>

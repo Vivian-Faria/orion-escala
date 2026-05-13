@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Órion · Escala",
+  "version": "1.0",
+  "description": "Coleta dados de pedidos do Órion e abre a plataforma de escala automaticamente.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": [
+    "https://admin.orioncloudkitchens.com.br/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://admin.orioncloudkitchens.com.br/*"],
+      "js": ["content/popups-script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Órion Escala",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
